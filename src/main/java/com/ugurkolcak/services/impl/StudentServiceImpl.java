@@ -19,25 +19,24 @@ public class StudentServiceImpl implements IStudentService {
     private final StudentRepository studentRepository;
     private final StudentConverter studentConverter;
 
-    // Constructor Injection - StudentMapper yerine StudentConverter
     public StudentServiceImpl(StudentRepository studentRepository, StudentConverter studentConverter) {
         this.studentRepository = studentRepository;
         this.studentConverter = studentConverter;
     }
 
     @Override
-    @Transactional // Yazma işlemi olduğu için
+    @Transactional
     public StudentResponse saveStudent(CreateStudentRequest dtoStudentIU) {
-        // 1. DTO'yu Entity'ye çevir (StudentConverter kullanarak)
+
         Student student = studentConverter.toEntity(dtoStudentIU);
-        // 2. Entity'yi kaydet
+
         Student dbStudent = studentRepository.save(student);
-        // 3. Kaydedilmiş Entity'yi Response DTO'suna çevir ve döndür
+
         return studentConverter.toResponse(dbStudent);
     }
 
     @Override
-    @Transactional(readOnly = true) // Sadece okuma işlemi, performansı artırabilir
+    @Transactional(readOnly = true) // Sadece okuma işlemi
     public List<StudentResponse> getAllStudents() {
         List<Student> dbStudents = studentRepository.findAll();
         // Converter ile tüm listeyi DTO listesine çevir
@@ -48,27 +47,20 @@ public class StudentServiceImpl implements IStudentService {
     @Transactional(readOnly = true) // Sadece okuma işlemi
     public StudentResponse getStudentById(Integer id) {
         Student dbStudent = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student", "id", id)); // Bulamazsa exception fırlat
+                .orElseThrow(() -> new ResourceNotFoundException("Student", "id", id)); 
         // Bulunan entity'yi DTO'ya çevir
         return studentConverter.toResponse(dbStudent);
     }
 
     @Override
-    @Transactional // Silme işlemi olduğu için
+    @Transactional
     public void deleteStudentById(Integer id) {
-        // Önce var olup olmadığını kontrol etmek iyi bir pratik olabilir
+
         if (!studentRepository.existsById(id)) {
             throw new ResourceNotFoundException("Student", "id", id);
         }
-        studentRepository.deleteById(id); // Varsa sil
+        studentRepository.deleteById(id);
 
-        // Alternatif: findById kullanıp sonra silmek (bir sorgu fazla yapar ama
-        // entity'ye erişim sağlar gerekirse)
-        /*
-         * Student studentToDelete = studentRepository.findById(id)
-         * .orElseThrow(() -> new ResourceNotFoundException("Student", "id", id));
-         * studentRepository.delete(studentToDelete);
-         */
     }
 
     @Override
@@ -77,7 +69,6 @@ public class StudentServiceImpl implements IStudentService {
         Student dbStudent = studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student", "id", id));
 
-        // StudentConverter kullanarak güncelleme
         studentConverter.updateEntityFromDto(dtoStudentIU, dbStudent);
 
         Student updatedStudent = studentRepository.save(dbStudent);

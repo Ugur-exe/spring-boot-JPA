@@ -17,6 +17,8 @@ import com.ugurkolcak.dto.response.StudentResponse;
 
 import com.ugurkolcak.services.IStudentService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping(path = "/rest/api/student")
 public class StudentControllerImpl implements IStudentContoller {
@@ -29,7 +31,7 @@ public class StudentControllerImpl implements IStudentContoller {
 
     @PostMapping(path = "/save")
     @Override
-    public StudentResponse saveStudent(@RequestBody CreateStudentRequest dtoStudentIU) {
+    public StudentResponse saveStudent(@RequestBody @Valid CreateStudentRequest dtoStudentIU) {
         return studentService.saveStudent(dtoStudentIU);
     }
 
