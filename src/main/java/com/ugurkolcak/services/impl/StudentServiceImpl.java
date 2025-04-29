@@ -36,19 +36,19 @@ public class StudentServiceImpl implements IStudentService {
     }
 
     @Override
-    @Transactional(readOnly = true) // Sadece okuma işlemi
+    @Transactional(readOnly = true)
     public List<StudentResponse> getAllStudents() {
         List<Student> dbStudents = studentRepository.findAll();
-        // Converter ile tüm listeyi DTO listesine çevir
+
         return studentConverter.toResponseList(dbStudents);
     }
 
     @Override
-    @Transactional(readOnly = true) // Sadece okuma işlemi
+    @Transactional(readOnly = true)
     public StudentResponse getStudentById(Integer id) {
         Student dbStudent = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student", "id", id)); 
-        // Bulunan entity'yi DTO'ya çevir
+                .orElseThrow(() -> new ResourceNotFoundException("Student", "id", id));
+
         return studentConverter.toResponse(dbStudent);
     }
 

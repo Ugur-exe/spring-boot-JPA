@@ -67,11 +67,11 @@ public class CustomerServiceImpl implements ICustomerService {
     @Override
     @Transactional
     public CustomerResponse updateCustomer(Long id, UpdateCustomerRequest customerRequest) {
-        // 1. Müşteriyi ID'ye göre bul
+
         Customer dbCustomer = findCustomerById(id);
         System.out.println("DB Customer Name  " + dbCustomer.getName() + " ID: " + dbCustomer.getId() + " Address ID: "
                 + dbCustomer.getAddress().getId());
-        // 2. Customer entity'sini request'ten gelen bilgilerle güncelle
+
         Long addressId = dbCustomer.getAddress().getId();
         customerConverter.updateEntityFromDto(customerRequest, dbCustomer);
         Address address = dbCustomer.getAddress();
@@ -79,15 +79,13 @@ public class CustomerServiceImpl implements ICustomerService {
         System.out.println(
                 "DB UPDATE Customer Name  " + dbCustomer.getName() + " ID: " + dbCustomer.getId() + " Address ID: "
                         + dbCustomer.getAddress().getId());
-        // 3. Var olan address'i al
 
         System.out.println("DB Address  " + address);
 
-        // 4. Adres bilgilerini güncelle
         addressConverter.updateEntityFromDto(customerRequest.getAddress(), address);
 
         System.out.println("Address ID: " + address.getId());
-        // 5. City güncellemesi (önce null kontrolü!)
+
         String newCityId = customerRequest.getAddress().getCityId();
         if (newCityId != null && (address.getCity() == null || !newCityId.equals(address.getCity().getId()))) {
             City newCity = cityRepository.findById(newCityId)
@@ -95,13 +93,10 @@ public class CustomerServiceImpl implements ICustomerService {
             address.setCity(newCity);
         }
 
-        // 6. Address'i ve Customer'ı kaydet
-
-        addressRepository.save(address); // İstersen burayı bırakmayabilirsin çünkü Cascade varsa otomatik kaydolur
+        addressRepository.save(address);
         dbCustomer.setAddress(address);
         Customer updatedCustomer = customerRepository.save(dbCustomer);
 
-        // 7. Güncellenen müşteri bilgilerini döndür
         return customerConverter.toResponse(updatedCustomer);
     }
 
